@@ -8,7 +8,13 @@
 import Foundation
 
 class ForecastDisplay {
-    func updateDisplay(temp: Float, humidity: Float, pressure: Float) {
+    init() {
+        WeatherNotify.shared.registerObserver(name: "ForecastCondition") { [weak self] modal in
+            self?.updateDisplay(modal: modal)
+        }
+    }
+
+    func updateDisplay(modal: WeatherModal) {
         print("Forecast display")
     }
 }

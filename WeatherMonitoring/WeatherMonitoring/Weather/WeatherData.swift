@@ -6,6 +6,41 @@
 //
 
 import Foundation
+import UIKit
+
+struct WeatherModal {
+    var temp: Float
+    var humidity: Float
+    var pressure: Float
+}
+
+protocol WeatherDataNotifySubject {
+    func registerObserver(name: String, completion: @escaping (WeatherModal) -> Void)
+    func removeObserver(name: String)
+    func notifyObservers(temp: Float, humidity: Float, pressure: Float)
+}
+
+class WeatherNotify: WeatherDataNotifySubject {
+    static private (set) var shared = WeatherNotify()
+
+    var completions: [String: ((WeatherModal) -> Void)] = [:]
+
+    func registerObserver(name: String, completion: @escaping (WeatherModal) -> Void) {
+        if (completions[name] == nil) {
+            completions[name] = completion
+        }
+    }
+    func removeObserver(name: String) {
+        completions.removeValue(forKey: name)
+    }
+    func notifyObservers(temp: Float, humidity: Float, pressure: Float) {
+        _ = completions.map { (key: String, value: ((WeatherModal) -> Void)) in
+            let modal = WeatherModal(temp: temp, humidity: humidity, pressure: pressure)
+            value(modal)
+        }
+    }
+}
+
 
 // Getting the data from the equipments
 class WeatherData {
@@ -29,14 +64,7 @@ class WeatherData {
     }
 
     // Our implementated methods
-    let currentCondition = CurrentConditionDisplay()
-    let statistic  = StatisticDisplay()
-    let forecast = ForecastDisplay()
-
     func updateAllDisplayUnits(temp: Float, humidity: Float, pressure: Float) {
-        currentCondition.updateDisplay(temp: temp, humidity: humidity, pressure: pressure)
-        statistic.updateDisplay(temp: temp, humidity: humidity, pressure: pressure)
-        forecast.updateDisplay(temp: temp, humidity: humidity, pressure: pressure)
+        WeatherNotify.shared.notifyObservers(temp: temp, humidity: humidity, pressure: pressure)
     }
 }
-

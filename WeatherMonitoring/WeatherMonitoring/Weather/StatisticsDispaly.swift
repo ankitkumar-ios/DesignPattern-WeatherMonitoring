@@ -8,7 +8,13 @@
 import Foundation
 
 class StatisticDisplay {
-    func updateDisplay(temp: Float, humidity: Float, pressure: Float) {
+    init() {
+        WeatherNotify.shared.registerObserver(name: "StatisticCondition") { [weak self] modal in
+            self?.updateDisplay(modal: modal)
+        }
+    }
+
+    func updateDisplay(modal: WeatherModal) {
         print("Statistic display")
     }
 }
